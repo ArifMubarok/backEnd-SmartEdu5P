@@ -17,6 +17,7 @@ router
   .get(logbookController.getLogbook)
   .patch(authController.restrictTo('siswa'), logbookController.uploadSupportFiles, logbookController.updateLogbook)
   .delete(authController.restrictTo('siswa'), logbookController.deleteLogbook);
-router.route('/:id/validate').patch(authController.restrictTo('guru'), logbookController.validateLogbook);
+router.patch('/:id/validate', authController.restrictTo('guru'), logbookController.validateLogbook);
+router.delete('/:id/supportFile', authController.restrictTo('siswa'), logbookController.deleteSupportFile);
 
 export default router;

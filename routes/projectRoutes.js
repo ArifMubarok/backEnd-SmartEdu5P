@@ -9,7 +9,7 @@ const router = express.Router();
 router.use(authController.protect);
 router.use('/:projectId/logbooks', logbookRouter);
 
-router.get('/testGetAllProject', projectController.getAllProjectTest);
+// router.get('/testGetAllProject', projectController.getAllProjectTest);
 router
   .route('/')
   .get(projectController.getAllProject)

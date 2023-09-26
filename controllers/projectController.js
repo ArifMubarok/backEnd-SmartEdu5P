@@ -1,5 +1,5 @@
 import multer from 'multer';
-import fs from 'node:fs/promises';
+import fs from 'fs';
 import path from 'path';
 
 import Project from '../models/projectModel.js';
@@ -12,6 +12,9 @@ const getAllProject = catchAsyncError(async (req, res, next) => {
   let filter = { $or: [{ chairman: req.user.id }, { members: req.user.id }] };
   if (req.user.role === 'guru') {
     filter = { teacher: req.user.id };
+  }
+  if (req.query.public) {
+    filter = {};
   }
   let projects = new APIFeatures(Project.find(filter), req.query).filter().sort().limitFields().paginate();
   projects = await projects.query;
@@ -47,11 +50,12 @@ const createProject = catchAsyncError(async (req, res, next) => {
     return next(new AppError('You already have an active project', 400));
   }
 
-  const { name, topic } = req.body;
+  const { name, topic, description } = req.body;
   if (!name || !topic) return next(new AppError('Please provide a name and topic of your project', 400));
   const project = await Project.create({
     name,
     topic,
+    description,
     chairman: req.user.id,
   });
 
@@ -163,10 +167,12 @@ const deleteProject = catchAsyncError(async (req, res, next) => {
   if (project.result.length) {
     const deleteResultFile = project.result.map(async (result) => {
       const filePath = `${path.resolve()}/public/img/projects/results/${result}`;
-      return await fs.unlink(filePath);
+      if (fs.existsSync(filePath)) await fs.promise.unlink(filePath);
     });
     await Promise.all(deleteResultFile);
   }
+
+  // TODO: Delete all logbook in the project
 
   res.status(204).json({
     status: 'success',
@@ -240,7 +246,7 @@ const uploadResults = catchAsyncError(async (req, res, next) => {
   const oldResult = req.currentProject.result;
   const deleteOldResult = oldResult.map(async (result) => {
     const filePath = `${path.resolve()}/public/img/projects/results/${result}`;
-    return await fs.unlink(filePath);
+    if (fs.existsSync(filePath)) await fs.promise.unlink(filePath);
   });
   await Promise.all(deleteOldResult);
 
@@ -283,16 +289,16 @@ const publishProject = catchAsyncError(async (req, res, next) => {
   });
 });
 
-const getAllProjectTest = catchAsyncError(async (req, res, next) => {
-  const projects = await Project.find();
-  res.status(200).json({
-    status: 'success',
-    results: projects.length,
-    data: {
-      projects,
-    },
-  });
-});
+// const getAllProjectTest = catchAsyncError(async (req, res, next) => {
+//   const projects = await Project.find();
+//   res.status(200).json({
+//     status: 'success',
+//     results: projects.length,
+//     data: {
+//       projects,
+//     },
+//   });
+// });
 
 export default {
   getAllProject,
@@ -304,7 +310,6 @@ export default {
   checkMembersField,
   sendRes,
   checkIsChairman,
-  getAllProjectTest,
   uploadResults,
   uploadFileResults,
   publishProject,

@@ -203,6 +203,42 @@ const validateLogbook = catchAsyncError(async (req, res, next) => {
   });
 });
 
+const deleteSupportFile = catchAsyncError(async (req, res, next) => {
+  const { filename } = req.body;
+  if (!filename || !filename.length) {
+    return next(new AppError('Please provide a filename that you want to delete', 400));
+  }
+  const logbook = await Logbook.findById(req.params.id);
+  if (!logbook) {
+    return next(new AppError('No Logbook found', 404));
+  }
+
+  if (Array.isArray(filename)) {
+    const deleteFilePromise = filename.map(async (file) => {
+      if (!logbook.supportFile.includes(file)) {
+        return next(new AppError('There are no files with that name in this logbook', 404));
+      }
+      const filePath = `${path.resolve()}/public/img/projects/logbooks/${file}`;
+      await fs.unlink(filePath);
+      logbook.supportFile = logbook.supportFile.filter((supportFile) => supportFile !== file);
+      await logbook.save();
+    });
+    await Promise.all(deleteFilePromise);
+  }
+  if (!logbook.supportFile.includes(filename)) {
+    return next(new AppError('There is no file with that name in this logbook.', 404));
+  }
+  const filePath = `${path.resolve()}/public/img/projects/logbooks/${filename}`;
+  await fs.unlink(filePath);
+  logbook.supportFile = logbook.supportFile.filter((supportFile) => supportFile !== filename);
+  await logbook.save();
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
+
 export default {
   getAllLogbooks,
   getLogbook,
@@ -212,4 +248,5 @@ export default {
   currentProject,
   uploadSupportFiles,
   validateLogbook,
+  deleteSupportFile,
 };

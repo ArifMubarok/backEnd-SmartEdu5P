@@ -1,6 +1,4 @@
 node_modules/
 *.env
 .prettierrc
-public/img/projects/logbooks/*
-public/img/projects/results/*
-public/img/users/profile/*
+config/

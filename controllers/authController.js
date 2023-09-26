@@ -174,4 +174,11 @@ const updatePassword = catchAsyncError(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-export default { signup, login, protect, forgotPassword, resetPassword, restrictTo, updatePassword };
+const logout = catchAsyncError(async (req, res, next) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+  });
+  res.status(200).json({ status: 'success' });
+});
+
+export default { signup, login, protect, forgotPassword, resetPassword, restrictTo, updatePassword, logout };

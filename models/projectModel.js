@@ -14,6 +14,18 @@ const projectSchema = new Schema(
     description: {
       type: String,
     },
+    like: {
+      type: Number,
+      default: 0,
+    },
+    bookmark: {
+      type: Number,
+      default: 0,
+    },
+    comment: {
+      type: Number,
+      default: 0,
+    },
     chairman: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
@@ -60,8 +72,6 @@ projectSchema.virtual('logbooks', {
   foreignField: 'project',
   localField: '_id',
 });
-// Indexes for members
-// projectSchema.index({ members: 1 }, { unique: true });
 
 // Document Middleware
 

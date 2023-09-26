@@ -12,6 +12,10 @@ import hpp from 'hpp';
 import userRouter from './routes/userRoutes.js';
 import projectRouter from './routes/projectRoutes.js';
 import logbookRouter from './routes/logbookRoutes.js';
+import likeRouter from './routes/likeRoutes.js';
+import bookmarRouter from './routes/bookmarkRoutes.js';
+import searchRouter from './routes/searchRoutes.js';
+import commentRouter from './routes/commentRoutes.js';
 import globalErrorHandler from './controllers/errorController.js';
 import AppError from './utils/appError.js';
 
@@ -56,6 +60,10 @@ app.use(hpp());
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/projects', projectRouter);
 app.use('/api/v1/logbooks', logbookRouter);
+app.use('/api/v1/likes', likeRouter);
+app.use('/api/v1/bookmarks', bookmarRouter);
+app.use('/api/v1/comments', commentRouter);
+app.use('/api/v1/search', searchRouter);
 
 app.all('*', function (req, res, next) {
   return next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
